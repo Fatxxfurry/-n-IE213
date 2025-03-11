@@ -5,20 +5,20 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: ["true", "Name is required"],
+      required: [true, "Name is required"],
     },
     email: {
       type: String,
-      require: ["true", "Email is required"],
+      required: [true, "Email is required"],
       unique: true,
       trim: true,
       lowercase: true,
-      macth: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
     },
     password: {
       type: String,
-      require: ["true", "Password is required"],
-      minlength: ["6", "Password is at least 6 character long"],
+      required: [true, "Password is required"],
+      minlength: [6, "Password is at least 6 character long"],
     },
     cartItem: [
       {
