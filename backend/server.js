@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import requestIp from "request-ip";
 import authRoutes from "./routes/auth.route.js";
-import { generalLimiter, authLimiter } from "./middlewares/ratelimiter.js";
+import { generalLimiter, authLimiter } from "./middlewares/rate.limiter.js";
 import { connectDB } from "./lib/db.js";
 
 dotenv.config();
@@ -12,9 +13,11 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(requestIp.mw());
 app.use(generalLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
+;
+
 
 app.listen(3000, () => {
   console.log("server running on http://localhost:" + PORT);

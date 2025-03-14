@@ -22,8 +22,8 @@ const setCookies = (res, accessToken, refreshToken) => {
     maxAge: 15 * 60 * 1000, //15 minutes
   });
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    samesite: "strict",
+    httpOnly: true,//xss
+    samesite: "strict",//csrf
     secure: process.env.NODE_ENV === "production",
     maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
   });
