@@ -108,19 +108,9 @@ export const refreshToken = async (req, res) => {
     if (refreshToken !== storedRefreshToken) {
       return res.status(401).send("Unauthenticated");
     }
-    const accessToken = jwt.sign(
-      { userId: decode.userId },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      samesite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 15 * 60 * 1000, //15 minutes
-    });
+    const {accessToken, refreshToken: newRefreshToken} = generateToken(decode.userId);
+    await storeRefreshToken(decode.userId, newRefreshToken);
+    setCookies(res, accessToken, newRefreshToken);
     res.status(200).send("Refresh token success");
   } catch (error) {
     console.log("Error in refresh token controller", error.message);
