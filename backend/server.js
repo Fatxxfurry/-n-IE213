@@ -7,7 +7,7 @@ import couponRoutes from "./routes/coupon.route.js";
 
 import requestIp from "request-ip";
 import authRoutes from "./routes/auth.route.js";
-import { generalLimiter, authLimiter } from "./middlewares/rate.limiter.js";
+import { generalLimiter, authLimiter } from "./middleware/rate.limiter.js";
 import { connectDB } from "./lib/db.js";
 
 dotenv.config();
