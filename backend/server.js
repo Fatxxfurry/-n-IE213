@@ -1,12 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRoutes from "./routes/auth.route.js";
-import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import couponRoutes from "./routes/coupon.route.js";
 
+import requestIp from "request-ip";
+import authRoutes from "./routes/auth.route.js";
+import { generalLimiter, authLimiter } from "./middlewares/rate.limiter.js";
+import { connectDB } from "./lib/db.js";
 
 dotenv.config();
 
@@ -19,6 +21,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/coupons", couponRoutes);
+app.use(requestIp.mw());
+app.use(generalLimiter);
+app.use("/api/auth", authLimiter, authRoutes);
+;
 
 
 app.listen(3000, () => {
