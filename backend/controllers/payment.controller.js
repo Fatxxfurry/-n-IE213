@@ -1,3 +1,6 @@
+import Coupon from "../models/coupon.model.js";
+import Order from "../models/order.model.js";
+import { stripe } from "../config/stripe.js";
 export const createCheckoutSession = async (req, res) => {
   try {
     const { products, couponCode } = req.body;
@@ -42,6 +45,17 @@ export const createCheckoutSession = async (req, res) => {
               coupon: await createStripeCoupon(coupon.discountPercentage),
             }
           : null,
+        metadata: {
+          couponCode: couponCode || null,
+          userId: req.user._id.toString(),
+          products: JSON.stringify(
+            products.map((product) => ({
+              productId: product.id,
+              quantity: product.quantity,
+              price: product.price,
+            }))
+          ),
+        },
       });
     }
     if (totalAmount >= process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
@@ -50,6 +64,41 @@ export const createCheckoutSession = async (req, res) => {
     res.status(200).json({ sessionId: session.id, totalAmount, couponCode });
   } catch (error) {
     console.log("Error in createCheckoutSession", error.message);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const checkoutSuccess = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status === "paid") {
+      const coupon = await Coupon.findOneAndUpdate(
+        { code: session.metadata.couponCode },
+        { isActive: false }
+      );
+    }
+    // Add order to database
+    products = JSON.parse(session.metadata.products);
+    const newOrder = new Order({
+      userId: session.metadata.userId,
+      products: products.map((product) => ({
+        productId: product.productId,
+        quantity: product.quantity,
+        price: product.price,
+      })),
+      totalAmount: session.amount_total,
+      stripeSessionId: sessionId,
+    });
+    await newOrder.save();
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Order created successfully and used coupon deactivated",
+        orderId: newOrder._id,
+      });
+  } catch (error) {
+    console.log("Error in checkout-success", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
