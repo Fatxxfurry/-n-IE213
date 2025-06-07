@@ -3,9 +3,17 @@ import { motion } from "framer-motion";
 import { useProductStore } from "../stores/useProductStore";
 
 const UpdateProductForm = ({ product, onClose }) => {
+  const categories = [
+    "jeans",
+    "t-shirts",
+    "shoes",
+    "glasses",
+    "jackets",
+    "suits",
+    "bags",
+  ];
   const [updatedProduct, setUpdatedProduct] = useState({ ...product });
   const { updateProduct } = useProductStore();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!updatedProduct.image || updatedProduct.image.startsWith("http")) {
@@ -40,7 +48,14 @@ const UpdateProductForm = ({ product, onClose }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-xl mx-4">
+      <div className="bg-gray-800 shadow-lg rounded-lg p-8 w-full max-w-xl mx-4 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-3xl text-gray-400 hover:text-gray-200"
+          aria-label="Close"
+        >
+          &times;
+        </button>
         <h2 className="text-2xl font-semibold mb-6 text-emerald-300">
           Update Product
         </h2>
@@ -107,7 +122,6 @@ const UpdateProductForm = ({ product, onClose }) => {
               required
             />
           </div>
-
           <div>
             <label
               htmlFor="category"
@@ -115,8 +129,7 @@ const UpdateProductForm = ({ product, onClose }) => {
             >
               Category
             </label>
-            <input
-              type="text"
+            <select
               id="category"
               name="category"
               value={updatedProduct.category}
@@ -126,9 +139,18 @@ const UpdateProductForm = ({ product, onClose }) => {
                   category: e.target.value,
                 })
               }
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md
+						 shadow-sm py-2 px-3 text-white focus:outline-none 
+						 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               required
-            />
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -159,5 +181,4 @@ const UpdateProductForm = ({ product, onClose }) => {
     </motion.div>
   );
 };
-
 export default UpdateProductForm;
