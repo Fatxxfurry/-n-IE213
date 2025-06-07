@@ -1,6 +1,6 @@
 import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
-import { stripe } from "../config/stripe.js";
+import { stripe } from "../lib/stripe.js";
 export const createCheckoutSession = async (req, res) => {
   try {
     const { products, couponCode } = req.body;
@@ -90,13 +90,11 @@ export const checkoutSuccess = async (req, res) => {
       stripeSessionId: sessionId,
     });
     await newOrder.save();
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Order created successfully and used coupon deactivated",
-        orderId: newOrder._id,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Order created successfully and used coupon deactivated",
+      orderId: newOrder._id,
+    });
   } catch (error) {
     console.log("Error in checkout-success", error.message);
     return res.status(500).json({ message: "Internal server error" });

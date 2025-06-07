@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import axios from "../lib/axios";
 import { Users, Package, ShoppingCart, DollarSign } from "lucide-react";
 import {
   LineChart,
@@ -23,33 +24,23 @@ const AnalyticsTab = () => {
   const [dailySalesData, setDailySalesData] = useState([]);
 
   useEffect(() => {
-    // Dữ liệu mô phỏng
-    const mockAnalyticsData = {
-      users: 1250,
-      products: 150,
-      totalSales: 320,
-      totalRevenue: 15300,
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await axios.get("/analytics");
+        setAnalyticsData(response.data.analyticsData);
+        setDailySalesData(response.data.dailySalesData);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    const mockDailySalesData = [
-      { name: "Mon", sales: 20, revenue: 1000 },
-      { name: "Tue", sales: 35, revenue: 1800 },
-      { name: "Wed", sales: 40, revenue: 2100 },
-      { name: "Thu", sales: 30, revenue: 1500 },
-      { name: "Fri", sales: 50, revenue: 2500 },
-      { name: "Sat", sales: 60, revenue: 3000 },
-      { name: "Sun", sales: 85, revenue: 4400 },
-    ];
-
-    setTimeout(() => {
-      setAnalyticsData(mockAnalyticsData);
-      setDailySalesData(mockDailySalesData);
-      setIsLoading(false);
-    }, 100);
+    fetchAnalyticsData();
   }, []);
 
   if (isLoading) {
-    return <div className="text-white text-center mt-8">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -116,7 +107,6 @@ const AnalyticsTab = () => {
     </div>
   );
 };
-
 export default AnalyticsTab;
 
 const AnalyticsCard = ({ title, value, icon: Icon, color }) => (

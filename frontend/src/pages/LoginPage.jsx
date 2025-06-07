@@ -25,7 +25,7 @@ const LoginPage = () => {
         transition={{ duration: 0.8 }}
       >
         <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
-          Log in To An Account
+          Create your account
         </h2>
       </motion.div>
 
@@ -58,7 +58,7 @@ const LoginPage = () => {
 									rounded-md shadow-sm
 									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
 									 focus:border-emerald-500 sm:text-sm"
-                  placeholder="admin@example.com"
+                  placeholder="you@example.com"
                 />
               </div>
             </div>

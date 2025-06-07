@@ -22,12 +22,11 @@ app.use(requestIp.mw());
 app.use(generalLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes); 
+app.use("/api/cart", cartRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", paymentRoutes);
-
 
 app.listen(3000, () => {
   console.log("server running on http://localhost:" + PORT);
