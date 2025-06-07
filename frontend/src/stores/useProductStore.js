@@ -83,4 +83,20 @@ export const useProductStore = create((set) => ({
       console.log("Error fetching featured products:", error);
     }
   },
+  updateProduct: async (productId, productData) => {
+    set({ loading: true });
+    try {
+      console.log("productData", productData);
+      const response = await axios.patch(`/products/${productId}/update`, productData);
+      set((prevProducts) => ({
+        products: prevProducts.products.map((product) =>
+          product._id === productId ? response.data : product
+        ),
+        loading: false,
+      }));
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.error || "Failed to update product");
+    }
+  },
 }));

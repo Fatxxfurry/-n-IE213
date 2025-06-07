@@ -142,3 +142,34 @@ async function updateFeaturedProductsCache() {
     console.log("error in update cache function");
   }
 }
+export const updatedProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, image, category } = req.body;
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    if (image !== null && image !== undefined) {
+      const publicId = product.image.split("/").pop().split(".")[0];
+      try {
+        await cloudinary.uploader.destroy(`products/${publicId}`);
+      } catch (error) {
+        console.log("error deleting image from cloduinary", error);
+      }
+      const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
+      product.image = cloudinaryResponse.secure_url;
+    }
+    product.name = name;
+    product.description = description;
+    product.price = price;
+    product.category = category;
+    await product.save();
+    res.json(product);
+  } catch (error) {
+    console.log("Error in updatedProduct controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
