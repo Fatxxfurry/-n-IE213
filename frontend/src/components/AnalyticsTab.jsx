@@ -15,11 +15,12 @@ import {
 
 const AnalyticsTab = () => {
   const [analyticsData, setAnalyticsData] = useState({
-    users: 0,
-    products: 0,
+    totalUsers: 0,
+    totalProducts: 0,
     totalSales: 0,
     totalRevenue: 0,
   });
+
   const [isLoading, setIsLoading] = useState(true);
   const [dailySalesData, setDailySalesData] = useState([]);
 
@@ -27,7 +28,7 @@ const AnalyticsTab = () => {
     const fetchAnalyticsData = async () => {
       try {
         const response = await axios.get("/analytics");
-        setAnalyticsData(response.data.analyticsData);
+        setAnalyticsData(response.data.analytics);
         setDailySalesData(response.data.dailySalesData);
       } catch (error) {
         console.error("Error fetching analytics data:", error);
@@ -48,13 +49,13 @@ const AnalyticsTab = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <AnalyticsCard
           title="Total Users"
-          value={analyticsData.users.toLocaleString()}
+          value={analyticsData.totalUsers.toLocaleString()}
           icon={Users}
           color="from-emerald-500 to-teal-700"
         />
         <AnalyticsCard
           title="Total Products"
-          value={analyticsData.products.toLocaleString()}
+          value={analyticsData.totalProducts.toLocaleString()}
           icon={Package}
           color="from-emerald-500 to-green-700"
         />

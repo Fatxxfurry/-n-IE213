@@ -1,32 +1,16 @@
-import Order from "../models/order.model";
-import User from "../models/user.model";
-import Product from "../models/product.model";
+import User from "../models/user.model.js";
+import Order from "../models/order.model.js";
+import Product from "../models/product.model.js";
 export const getAnalytics = async (req, res) => {
-  const totalUsers = await User.countDocuments();
-  const totalOrders = await Order.countDocuments();
-  const totalProducts = await Product.countDocuments();
-
-  const salesData = await Order.aggregate([
-    {
-      $group: {
-        _id: null,
-        totalSales: { $sum: 1 },
-        totalRenvenue: { $sum: "$totalAmount" },
-      },
-    },
-  ]);
-  const { totalSales, totalRenvenue } = salesData[0] || {
-    totalSales: 0,
-    totalRenvenue: 0,
-  };
-  return res.json({
-    totalUsers,
-    totalOrders,
-    totalProducts,
-    totalSales,
-    totalRenvenue,
-  });
+  try {
+    const analytics = await fetchAnalyticsData();
+    return res.json(analytics);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 export const getDailySalesData = async (startDate, endDate) => {
   try {
     const dailySalesData = await Order.aggregate([
@@ -53,7 +37,7 @@ export const getDailySalesData = async (startDate, endDate) => {
       };
     });
   } catch (error) {
-      throw new Error(error.message);
+    throw new Error(error.message);
   }
 };
 function getDatesInRange(startDate, endDate) {

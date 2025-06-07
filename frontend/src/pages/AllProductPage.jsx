@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import { useProductStore } from "../stores/useProductStore";
-import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ProductCard from "../components/ProductCard";
 
-const CategoryPage = () => {
-  const { fetchProductsByCategory, products } = useProductStore();
-  const { category } = useParams();
-  const [searchTerm, setSearchTerm] = useState("");
+const AllProductPage = () => {
+  const { fetchAllProducts, products } = useProductStore();
   const [sortType, setSortType] = useState("none");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchProductsByCategory(category);
-  }, [fetchProductsByCategory, category]);
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+    fetchAllProducts();
+  }, [fetchAllProducts]);
 
   const handleSortChange = (event) => {
     setSortType(event.target.value);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
 
   const sortedProducts = [...products]
@@ -47,7 +45,7 @@ const CategoryPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {category.charAt(0).toUpperCase() + category.slice(1)}
+          All Products
         </motion.h1>
 
         <div className="mb-6 text-center">
@@ -84,6 +82,7 @@ const CategoryPage = () => {
               No products found
             </h2>
           )}
+
           {sortedProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
@@ -93,4 +92,5 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default AllProductPage;
+
