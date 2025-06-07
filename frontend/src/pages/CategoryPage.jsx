@@ -3,6 +3,7 @@ import { useProductStore } from "../stores/useProductStore";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import ProductCard from "../components/ProductCard";
+import { useTranslation } from "react-i18next";
 
 const CategoryPage = () => {
   const { fetchProductsByCategory, products } = useProductStore();
@@ -12,6 +13,7 @@ const CategoryPage = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]); // [min, max]
   const [activeSlider, setActiveSlider] = useState(null);
   const sliderRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (category) {
@@ -130,14 +132,14 @@ const CategoryPage = () => {
           transition={{ duration: 0.8 }}
         >
           {category
-            ? category.charAt(0).toUpperCase() + category.slice(1)
-            : "Category"}
+            ? t(`homepage.categories.${category}`)
+            : t("category.default")}
         </motion.h1>
 
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4">
           <div className="flex items-center">
             <label htmlFor="sort" className="mr-2 text-lg text-gray-300">
-              Sort by:
+              {t("category.sort_by")}
             </label>
             <select
               id="sort"
@@ -145,21 +147,24 @@ const CategoryPage = () => {
               onChange={handleSortChange}
               className="bg-gray-700 text-white p-2 rounded"
             >
-              <option value="none">None</option>
-              <option value="price">Price</option>
-              <option value="name">Name</option>
+              <option value="none">{t("category.sort.none")}</option>
+              <option value="price">{t("category.sort.price")}</option>
+              <option value="name">{t("category.sort.name")}</option>
             </select>
             <input
               type="search"
               value={searchTerm}
               onChange={handleSearchChange}
               className="bg-gray-700 text-white p-2 rounded ml-4"
-              placeholder="Search by name"
+              placeholder={t("category.search_placeholder")}
             />
           </div>
           <div className="flex items-center gap-2">
             <label className="text-lg text-gray-300">
-              Price: ${priceRange[0]} - ${priceRange[1]}
+              {t("category.price_range", {
+                min: priceRange[0],
+                max: priceRange[1],
+              })}
             </label>
             <div className="relative w-32 h-6" ref={sliderRef}>
               <div className="absolute top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-600 rounded-full">
@@ -215,7 +220,7 @@ const CategoryPage = () => {
         >
           {sortedProducts.length === 0 && (
             <h2 className="text-3xl font-semibold text-gray-300 text-center col-span-full">
-              No products found
+              {t("category.no_products")}
             </h2>
           )}
           {sortedProducts.map((product) => (

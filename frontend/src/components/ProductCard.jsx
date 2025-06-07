@@ -2,13 +2,21 @@ import toast from "react-hot-toast";
 import { ShoppingCart } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
+import { useTranslation } from "react-i18next";
 
 const ProductCard = ({ product }) => {
   const { user } = useUserStore();
   const { addToCart } = useCartStore();
+  const { t } = useTranslation();
+
   const handleAddToCart = () => {
     if (!user) {
-      toast.error("Please login to add products to cart", { id: "login" });
+      toast.error(
+        t("product_card.login_error", {
+          defaultValue: "Please login to add products to cart",
+        }),
+        { id: "login" }
+      );
       return;
     } else {
       // add to cart
@@ -22,7 +30,7 @@ const ProductCard = ({ product }) => {
         <img
           className="object-cover w-full"
           src={product.image}
-          alt="product image"
+          alt={t("product_card.image_alt", { defaultValue: "product image" })}
         />
         <div className="absolute inset-0 bg-black bg-opacity-20" />
       </div>
@@ -44,10 +52,11 @@ const ProductCard = ({ product }) => {
           onClick={handleAddToCart}
         >
           <ShoppingCart size={22} className="mr-2" />
-          Add to cart
+          {t("product_card.add_to_cart", { defaultValue: "Add to cart" })}
         </button>
       </div>
     </div>
   );
 };
+
 export default ProductCard;

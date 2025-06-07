@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { MoveRight } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "../lib/axios";
+import { useTranslation } from "react-i18next";
 
 const stripePromise = loadStripe(
   "pk_test_51R6BGkQqINZd5lUJ91n9wmyBYLP0rkgjZfH8mn7YgZBYtnCoKNdrDJI9UHjRrO6U4aG9FgtepNoCpxLQucmmwchA00OVyvKxgr"
@@ -11,6 +12,7 @@ const stripePromise = loadStripe(
 
 const OrderSummary = () => {
   const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
+  const { t } = useTranslation();
 
   const savings = subtotal - total;
   const formattedSubtotal = subtotal;
@@ -41,13 +43,17 @@ const OrderSummary = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <p className="text-xl font-semibold text-emerald-400">Order summary</p>
+      <p className="text-xl font-semibold text-emerald-400">
+        {t("order_summary.title", { defaultValue: "Order summary" })}
+      </p>
 
       <div className="space-y-4">
         <div className="space-y-2">
           <dl className="flex items-center justify-between gap-4">
             <dt className="text-base font-normal text-gray-300">
-              Original price
+              {t("order_summary.original_price", {
+                defaultValue: "Original price",
+              })}
             </dt>
             <dd className="text-base font-medium text-white">
               {formattedSubtotal} VNĐ
@@ -56,7 +62,9 @@ const OrderSummary = () => {
 
           {savings > 0 && (
             <dl className="flex items-center justify-between gap-4">
-              <dt className="text-base font-normal text-gray-300">Savings</dt>
+              <dt className="text-base font-normal text-gray-300">
+                {t("order_summary.savings", { defaultValue: "Savings" })}
+              </dt>
               <dd className="text-base font-medium text-emerald-400">
                 -{formattedSavings} VNĐ
               </dd>
@@ -66,7 +74,10 @@ const OrderSummary = () => {
           {coupon && isCouponApplied && (
             <dl className="flex items-center justify-between gap-4">
               <dt className="text-base font-normal text-gray-300">
-                Coupon ({coupon.code})
+                {t("order_summary.coupon", {
+                  defaultValue: "Coupon ({{code}})",
+                  code: coupon.code,
+                })}
               </dt>
               <dd className="text-base font-medium text-emerald-400">
                 -{coupon.discountPercentage}%
@@ -74,9 +85,11 @@ const OrderSummary = () => {
             </dl>
           )}
           <dl className="flex items-center justify-between gap-4 border-t border-gray-600 pt-2">
-            <dt className="text-base font-bold text-white">Total</dt>
+            <dt className="text-base font-bold text-white">
+              {t("order_summary.total", { defaultValue: "Total" })}
+            </dt>
             <dd className="text-base font-bold text-emerald-400">
-              {formattedTotal}VNĐ
+              {formattedTotal} VNĐ
             </dd>
           </dl>
         </div>
@@ -87,16 +100,22 @@ const OrderSummary = () => {
           whileTap={{ scale: 0.95 }}
           onClick={handlePayment}
         >
-          Proceed to Checkout
+          {t("order_summary.proceed_to_checkout", {
+            defaultValue: "Proceed to Checkout",
+          })}
         </motion.button>
 
         <div className="flex items-center justify-center gap-2">
-          <span className="text-sm font-normal text-gray-400">or</span>
+          <span className="text-sm font-normal text-gray-400">
+            {t("order_summary.or", { defaultValue: "or" })}
+          </span>
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-emerald-400 underline hover:text-emerald-300 hover:no-underline"
           >
-            Continue Shopping
+            {t("order_summary.continue_shopping", {
+              defaultValue: "Continue Shopping",
+            })}
             <MoveRight size={16} />
           </Link>
         </div>
@@ -104,4 +123,5 @@ const OrderSummary = () => {
     </motion.div>
   );
 };
+
 export default OrderSummary;

@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useProductStore } from "../stores/useProductStore";
 import { motion } from "framer-motion";
 import ProductCard from "../components/ProductCard";
+import { useTranslation } from "react-i18next";
 
 const AllProductPage = () => {
   const { fetchAllProducts, products } = useProductStore();
   const [sortType, setSortType] = useState("none");
   const [searchTerm, setSearchTerm] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchAllProducts();
@@ -45,12 +47,12 @@ const AllProductPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          All Products
+          {t("all_products.title", { defaultValue: "All Products" })}
         </motion.h1>
 
         <div className="mb-6 text-center">
           <label htmlFor="sort" className="mr-2 text-lg text-gray-300">
-            Sort by:
+            {t("all_products.sort_by", { defaultValue: "Sort by:" })}
           </label>
           <select
             id="sort"
@@ -58,16 +60,24 @@ const AllProductPage = () => {
             onChange={handleSortChange}
             className="bg-gray-700 text-white p-2 rounded"
           >
-            <option value="none">None</option>
-            <option value="price">Price</option>
-            <option value="name">Name</option>
+            <option value="none">
+              {t("all_products.sort.none", { defaultValue: "None" })}
+            </option>
+            <option value="price">
+              {t("all_products.sort.price", { defaultValue: "Price" })}
+            </option>
+            <option value="name">
+              {t("all_products.sort.name", { defaultValue: "Name" })}
+            </option>
           </select>
           <input
             type="search"
             value={searchTerm}
             onChange={handleSearchChange}
             className="bg-gray-700 text-white p-2 rounded ml-4"
-            placeholder="Search by name"
+            placeholder={t("all_products.search_placeholder", {
+              defaultValue: "Search by name",
+            })}
           />
         </div>
 
@@ -79,7 +89,9 @@ const AllProductPage = () => {
         >
           {sortedProducts.length === 0 && (
             <h2 className="text-3xl font-semibold text-gray-300 text-center col-span-full">
-              No products found
+              {t("all_products.no_products", {
+                defaultValue: "No products found",
+              })}
             </h2>
           )}
 
@@ -93,4 +105,3 @@ const AllProductPage = () => {
 };
 
 export default AllProductPage;
-

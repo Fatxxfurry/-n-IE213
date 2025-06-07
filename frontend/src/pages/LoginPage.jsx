@@ -3,12 +3,13 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { LogIn, Mail, Lock, ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import { useTranslation } from "react-i18next";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const { login, loading } = useUserStore();
+  const { t } = useTranslation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,7 +26,7 @@ const LoginPage = () => {
         transition={{ duration: 0.8 }}
       >
         <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
-          Create your account
+          {t("login_page.title", { defaultValue: "Login to your account" })}
         </h2>
       </motion.div>
 
@@ -42,7 +43,7 @@ const LoginPage = () => {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-300"
               >
-                Email address
+                {t("login_page.email_label", { defaultValue: "Email address" })}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -58,7 +59,9 @@ const LoginPage = () => {
 									rounded-md shadow-sm
 									 placeholder-gray-400 focus:outline-none focus:ring-emerald-500 
 									 focus:border-emerald-500 sm:text-sm"
-                  placeholder="you@example.com"
+                  placeholder={t("login_page.email_placeholder", {
+                    defaultValue: "you@example.com",
+                  })}
                 />
               </div>
             </div>
@@ -68,7 +71,7 @@ const LoginPage = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-300"
               >
-                Password
+                {t("login_page.password_label", { defaultValue: "Password" })}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -82,7 +85,9 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className=" block w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 
 									rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder={t("login_page.password_placeholder", {
+                    defaultValue: "••••••••",
+                  })}
                 />
               </div>
             </div>
@@ -101,24 +106,25 @@ const LoginPage = () => {
                     className="mr-2 h-5 w-5 animate-spin"
                     aria-hidden="true"
                   />
-                  Loading...
+                  {t("login_page.loading", { defaultValue: "Loading..." })}
                 </>
               ) : (
                 <>
                   <LogIn className="mr-2 h-5 w-5" aria-hidden="true" />
-                  Login
+                  {t("login_page.login_button", { defaultValue: "Login" })}
                 </>
               )}
             </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-gray-400">
-            Not a member?{" "}
+            {t("login_page.not_member", { defaultValue: "Not a member?" })}{" "}
             <Link
               to="/signup"
               className="font-medium text-emerald-400 hover:text-emerald-300"
             >
-              Sign up now <ArrowRight className="inline h-4 w-4" />
+              {t("login_page.signup_link", { defaultValue: "Sign up now" })}{" "}
+              <ArrowRight className="inline h-4 w-4" />
             </Link>
           </p>
         </div>
@@ -126,4 +132,5 @@ const LoginPage = () => {
     </div>
   );
 };
+
 export default LoginPage;
