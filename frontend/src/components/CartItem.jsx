@@ -46,7 +46,7 @@ const CartItem = ({ item }) => {
 
           <div className="text-end md:order-4 md:w-32">
             <p className="text-base font-bold text-emerald-400">
-              ${(item.price * item.quantity).toFixed(2)}
+              {item.price * item.quantity}VNĐ
             </p>
           </div>
         </div>

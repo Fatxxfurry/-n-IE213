@@ -73,7 +73,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <MapPin size={18} className="mr-2 text-emerald-400" />
-                123 E-Commerce Street, Hanoi, Vietnam
+                123 Linh Trung, Thu Duc, Vietnam
               </li>
             </ul>
             {/* Social Media Icons */}
