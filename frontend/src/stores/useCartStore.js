@@ -90,6 +90,7 @@ export const useCartStore = create((set, get) => ({
     }));
     get().calculateTotals();
   },
+
   calculateTotals: () => {
     const { cart, coupon } = get();
     const subtotal = cart.reduce(
