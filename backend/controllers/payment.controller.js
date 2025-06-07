@@ -1,19 +1,20 @@
 import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
 import { stripe } from "../lib/stripe.js";
+
 export const createCheckoutSession = async (req, res) => {
   try {
     const { products, couponCode } = req.body;
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ message: "Invalid or empty product list" });
     }
-    let totalAmount = 0;
 
+    let totalAmount = 0;
     const lineItems = products.map((product) => {
       totalAmount += product.price * product.quantity;
       return {
         price_data: {
-          currency: "vnd",
+          currency: "usd",
           product_data: {
             name: product.name,
             images: [product.image],
@@ -23,73 +24,112 @@ export const createCheckoutSession = async (req, res) => {
         quantity: product.quantity,
       };
     });
+
+    // Xử lý coupon (nếu có)
+    let discounts = [];
     if (couponCode) {
       const coupon = await Coupon.findOne({
         code: couponCode,
         userId: req.user._id,
         isActive: true,
       });
+
       if (coupon) {
+        // Stripe chỉ cần discount, không cần tính lại totalAmount ở đây
+        const stripeCoupon = await createStripeCoupon(
+          coupon.discountPercentage
+        );
+        discounts.push({
+          coupon: stripeCoupon.id,
+        });
+
+        // Giảm giá trên totalAmount chỉ để hiển thị
         totalAmount -= Math.round(
           (totalAmount * coupon.discountPercentage) / 100
         );
       }
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: lineItems,
-        mode: "payment",
-        success_url: `${process.env.CLIENT_URL}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.CLIENT_URL}/purchase/cancel`,
-        discount: coupon
-          ? {
-              coupon: await createStripeCoupon(coupon.discountPercentage),
-            }
-          : null,
-        metadata: {
-          couponCode: couponCode || null,
-          userId: req.user._id.toString(),
-          products: JSON.stringify(
-            products.map((product) => ({
-              productId: product.id,
-              quantity: product.quantity,
-              price: product.price,
-            }))
-          ),
-        },
-      });
     }
+
+    // Tạo session (luôn luôn tạo)
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${process.env.CLIENT_URL}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/purchase/cancel`,
+      discounts: discounts,
+      metadata: {
+        couponCode: couponCode || null,
+        userId: req.user._id.toString(),
+        products: JSON.stringify(
+          products.map((product) => ({
+            productId: product.id || product._id,
+            quantity: product.quantity,
+            price: product.price,
+          }))
+        ),
+      },
+    });
+
+    // Tạo coupon mới cho user nếu đủ điều kiện
     if (totalAmount >= process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
       await createNewCoupon(req.user._id);
     }
-    res.status(200).json({ sessionId: session.id, totalAmount, couponCode });
+
+    return res.status(200).json({
+      sessionId: session.id,
+      totalAmount,
+      couponCode: couponCode || null,
+    });
   } catch (error) {
-    console.log("Error in createCheckoutSession", error.message);
+    console.log("Error in createCheckoutSession:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 export const checkoutSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (session.payment_status === "paid") {
-      const coupon = await Coupon.findOneAndUpdate(
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).json({ message: "Payment not completed" });
+    }
+
+    // Check if order already exists to avoid duplicates
+    const existingOrder = await Order.findOne({ stripeSessionId: sessionId });
+    if (existingOrder) {
+      return res.status(200).json({
+        success: true,
+        message: "Order already exists",
+        orderId: existingOrder._id,
+      });
+    }
+
+    // Deactivate coupon if any
+    if (session.metadata.couponCode) {
+      await Coupon.findOneAndUpdate(
         { code: session.metadata.couponCode },
         { isActive: false }
       );
     }
-    // Add order to database
-    products = JSON.parse(session.metadata.products);
+
+    // Parse products and create order
+    const products = JSON.parse(session.metadata.products);
+
     const newOrder = new Order({
-      userId: session.metadata.userId,
+      user: session.metadata.userId,
       products: products.map((product) => ({
-        productId: product.productId,
+        product: product.productId,
         quantity: product.quantity,
         price: product.price,
       })),
       totalAmount: session.amount_total,
       stripeSessionId: sessionId,
     });
+
     await newOrder.save();
+
     return res.status(200).json({
       success: true,
       message: "Order created successfully and used coupon deactivated",
@@ -100,6 +140,7 @@ export const checkoutSuccess = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 async function createStripeCoupon(discountPercentage) {
   try {
     const coupon = await stripe.coupons.create({
@@ -114,6 +155,11 @@ async function createStripeCoupon(discountPercentage) {
 }
 async function createNewCoupon(userId) {
   try {
+    const existingCoupon = await Coupon.findOne({ userId: userId });
+    if (existingCoupon) {
+      console.log("User already has a coupon. Skipping creation.");
+      return;
+    }
     const coupon = new Coupon({
       code: "GIFT" + Math.random().toString(36).substring(7).toUpperCase(),
       discountPercentage: 10,
@@ -121,7 +167,8 @@ async function createNewCoupon(userId) {
       userId: userId,
     });
     await coupon.save();
+    console.log("Coupon created successfully for user:", userId);
   } catch (error) {
-    console.log("Error in createNewCoupon", error.message);
+    console.log("Error in createNewCoupon:", error.message);
   }
 }

@@ -15,7 +15,9 @@ import CartPage from "./pages/CartPage";
 import { useCartStore } from "./stores/useCartStore";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
+import AllProductPage from "./pages/AllProductPage";
 import Footer from "./components/Footer";
+
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -59,21 +61,23 @@ function App() {
             }
           />
           <Route path="/category/:category" element={<CategoryPage />} />
+          <Route path="/all" element={<AllProductPage />} />
           <Route
             path="/cart"
             element={user ? <CartPage /> : <Navigate to="/login" />}
           />
           <Route
-            path="/purchase-success"
+            path="/purchase/success"
             element={user ? <PurchaseSuccessPage /> : <Navigate to="/login" />}
           />
           <Route
-            path="/purchase-cancel"
+            path="/purchase/cancel"
             element={user ? <PurchaseCancelPage /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>
       <Footer />
+      {/* Toast notifications */}
       <Toaster />
     </div>
   );

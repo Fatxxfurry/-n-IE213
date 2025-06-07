@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password is at least 6 character long"],
     },
-    cartItem: [
+    cartItems: [
       {
         quantity: {
           type: Number,
