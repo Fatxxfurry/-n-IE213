@@ -27,11 +27,13 @@ export const getDailySalesData = async (startDate, endDate) => {
         },
       },
     ]);
+
     const dates = getDatesInRange(startDate, endDate);
     return dates.map((date) => {
-      const foundData = dailySalesData.find((data) => data._id === date);
+      const dateString = date.toISOString().split('T')[0];
+      const foundData = dailySalesData.find((data) => data._id === dateString);
       return {
-        date,
+        date: dateString,
         sales: foundData?.sales || 0,
         revenue: foundData?.revenue || 0,
       };

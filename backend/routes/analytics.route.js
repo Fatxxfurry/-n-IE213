@@ -10,10 +10,10 @@ router.get("/", protectRoute, adminRoute, async (req, res) => {
     const analytics = await fetchAnalyticsData();
     const endDate = new Date();
     const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const dailySalesDate = await getDailySalesData(startDate, endDate);
+    const dailySalesData = await getDailySalesData(startDate, endDate);
     res.json({
       analytics,
-      dailySalesDate,
+      dailySalesData,
     });
   } catch (error) {
     console.log("Error in getAnalytics controller", error.message);

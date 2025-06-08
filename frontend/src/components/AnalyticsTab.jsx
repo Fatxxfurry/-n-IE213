@@ -36,7 +36,7 @@ const AnalyticsTab = () => {
         setIsLoading(false);
       }
     };
-
+    console.log("dailySalesData", dailySalesData);
     fetchAnalyticsData();
   }, []);
 
