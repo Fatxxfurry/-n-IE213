@@ -17,7 +17,7 @@ import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 import AllProductPage from "./pages/AllProductPage";
 import Footer from "./components/Footer";
-
+import ProductDetail from "./pages/ProductDetail";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -46,6 +46,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route
             path="/signup"
             element={!user ? <SignUpPage /> : <Navigate to="/" />}

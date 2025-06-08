@@ -8,11 +8,12 @@ import {
   getRecommendedProducts,
   updatedProduct,
   toggleFeaturedProduct,
+  getProductById,
 } from "../controllers/product.controller.js";
 import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
-
+router.get("/:id", getProductById);
 router.get("/", getAllProducts);
 router.get("/featured", getFeaturedProducts);
 router.post("/", protectRoute, adminRoute, createProduct);

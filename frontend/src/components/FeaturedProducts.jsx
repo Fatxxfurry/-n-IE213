@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCartStore } from "../stores/useCartStore";
-import { useTranslation } from "react-i18next";
 
 const FeaturedProducts = ({ featuredProducts }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(4);
+
   const { addToCart } = useCartStore();
-  const { t } = useTranslation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,7 +36,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
     <div className="py-12">
       <div className="container mx-auto px-4">
         <h2 className="text-center text-5xl sm:text-6xl font-bold text-emerald-400 mb-4">
-          {t("featured_products.title", { defaultValue: "Featured" })}
+          Featured
         </h2>
         <div className="relative">
           <div className="overflow-hidden">
@@ -58,30 +57,24 @@ const FeaturedProducts = ({ featuredProducts }) => {
                     <div className="overflow-hidden">
                       <img
                         src={product.image}
-                        alt={t(`products.${product._id}.name`, {
-                          defaultValue: product.name,
-                        })}
+                        alt={product.name}
                         className="w-full h-48 object-cover transition-transform duration-300 ease-in-out hover:scale-110"
                       />
                     </div>
                     <div className="p-4">
                       <h3 className="text-lg font-semibold mb-2 text-white">
-                        {t(`products.${product._id}.name`, {
-                          defaultValue: product.name,
-                        })}
+                        {product.name}
                       </h3>
                       <p className="text-emerald-300 font-medium mb-4">
-                        {product.price} VNĐ
+                        ${product.price.toFixed(2)}
                       </p>
                       <button
                         onClick={() => addToCart(product)}
                         className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded transition-colors duration-300 
-                        flex items-center justify-center"
+												flex items-center justify-center"
                       >
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        {t("featured_products.add_to_cart", {
-                          defaultValue: "Add to Cart",
-                        })}
+                        Add to Cart
                       </button>
                     </div>
                   </div>
@@ -100,6 +93,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
+
           <button
             onClick={nextSlide}
             disabled={isEndDisabled}
@@ -116,5 +110,4 @@ const FeaturedProducts = ({ featuredProducts }) => {
     </div>
   );
 };
-
 export default FeaturedProducts;

@@ -1,33 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-input[type="range"].min-slider::-webkit-slider-thumb,
-input[type="range"].max-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  background: #34d399; /* Tailwind's emerald-400 */
-  border-radius: 50%;
-  cursor: pointer;
-  margin-top: -6px; /* Center thumb on track */
-}
-
-input[type="range"].min-slider::-moz-range-thumb,
-input[type="range"].max-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: #34d399; /* Tailwind's emerald-400 */
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
-
-input[type="range"].min-slider::-ms-thumb,
-input[type="range"].max-slider::-ms-thumb {
-  width: 16px;
-  height: 16px;
-  background: #34d399; /* Tailwind's emerald-400 */
-  border-radius: 50%;
-  cursor: pointer;
-}

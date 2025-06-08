@@ -173,3 +173,19 @@ export const updatedProduct = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(product);
+  } catch (error) {
+    console.log("Error in getProductById controller:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
