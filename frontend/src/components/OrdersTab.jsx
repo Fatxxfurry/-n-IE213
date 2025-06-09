@@ -3,9 +3,15 @@ import { Trash, Star } from "lucide-react";
 import React, { useState } from "react";
 import { useOrderStore } from "../stores/useOrderStore.js";
 import UpdateOrderForm from "./UpdateOrderForm.jsx";
+import { useEffect } from "react";
 const OrdersTab = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdAt",
+    direction: "asc",
+  });
+  const [statusFilter, setStatusFilter] = useState("");
 
   const handleOrderClick = (order) => {
     if (selectedOrder && selectedOrder._id !== order._id) {
@@ -25,7 +31,39 @@ const OrdersTab = () => {
     setSelectedOrder(null);
   };
 
-  const { orders, fetchUserOrders } = useOrderStore();
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleFilter = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const { orders, getAllOrders } = useOrderStore();
+  useEffect(() => {
+    getAllOrders();
+  }, [getAllOrders]);
+  const sortedFilteredOrders = React.useMemo(() => {
+    if (!orders) return [];
+    const filteredOrders = orders.filter((order) => {
+      if (statusFilter === "") return true;
+      return order.status === statusFilter;
+    });
+    return [...filteredOrders].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === "asc" ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [orders, sortConfig, statusFilter]);
+
   return (
     <div>
       <motion.div
@@ -34,6 +72,35 @@ const OrdersTab = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
+        <div className="flex justify-between p-4">
+          <select
+            className="bg-gray-700 text-white p-2 rounded"
+            onChange={handleFilter}
+          >
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="delivered">Delivered</option>
+            <option value="returned">Returned</option>
+            <option value="refunded">Refunded</option>
+            <option value="shipping">Shipping</option>
+            <option value="processing">Processing</option>
+          </select>
+          <div className="flex space-x-2">
+            <button
+              className="bg-emerald-500 text-white p-2 rounded"
+              onClick={() => handleSort("createdAt")}
+            >
+              Sort by Date
+            </button>
+            <button
+              className="bg-emerald-500 text-white p-2 rounded"
+              onClick={() => handleSort("totalAmount")}
+            >
+              Sort by Total Price
+            </button>
+          </div>
+        </div>
         <table className="min-w-full divide-y divide-gray-700">
           <thead className="bg-gray-700">
             <tr>
@@ -71,7 +138,7 @@ const OrdersTab = () => {
           </thead>
 
           <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {orders?.map((order) => (
+            {sortedFilteredOrders.map((order) => (
               <tr key={order._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div

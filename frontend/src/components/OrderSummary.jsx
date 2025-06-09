@@ -64,7 +64,10 @@ const OrderSummary = () => {
               })}
             </dt>
             <dd className="text-base font-medium text-white">
-              {formattedSubtotal} VNĐ
+                                    {Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(formattedSubtotal)}
             </dd>
           </dl>
 
@@ -74,7 +77,11 @@ const OrderSummary = () => {
                 {t("order_summary.savings", { defaultValue: "Savings" })}
               </dt>
               <dd className="text-base font-medium text-emerald-400">
-                -{formattedSavings} VNĐ
+                -{" "}
+                {Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(formattedSavings)}
               </dd>
             </dl>
           )}
@@ -97,7 +104,10 @@ const OrderSummary = () => {
               {t("order_summary.total", { defaultValue: "Total" })}
             </dt>
             <dd className="text-base font-bold text-emerald-400">
-              {formattedTotal} VNĐ
+              {Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(formattedTotal)}
             </dd>
           </dl>
         </div>

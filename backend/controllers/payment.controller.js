@@ -1,6 +1,7 @@
 import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
 import { stripe } from "../lib/stripe.js";
+import { sendEmail } from "../lib/nodemailer.js";
 export const createCheckoutSession = async (req, res) => {
   try {
     const { products, couponCode, phoneNumber, address } = req.body;
@@ -70,9 +71,6 @@ export const createCheckoutSession = async (req, res) => {
         address,
       },
     });
-    if (totalAmount >= process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
-      await createNewCoupon(req.user._id);
-    }
     return res.status(200).json({
       sessionId: session.id,
       totalAmount,
@@ -105,11 +103,12 @@ export const checkoutSuccess = async (req, res) => {
 
     // Deactivate coupon if any
     if (session.metadata.couponCode) {
-      await Coupon.findOneAndUpdate(
-        { code: session.metadata.couponCode },
-        { isActive: false }
-      );
+      await Coupon.findOneAndDelete({
+        code: session.metadata.couponCode,
+        userId: session.metadata.userId,
+      });
     }
+
     // Parse products and create order
     const products = JSON.parse(session.metadata.products);
 
@@ -127,7 +126,20 @@ export const checkoutSuccess = async (req, res) => {
       status: "processing",
     });
 
+    if (session.total_amount > process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
+      await createNewCoupon(session.metadata.userId);
+    }
+
     await newOrder.save();
+
+    const emailSubject = "Order and Coupon Details";
+    let emailText = `Order created successfully with ID: ${newOrder._id}`;
+
+    const coupon = await Coupon.findOne({ userId: session.metadata.userId });
+    if (coupon) {
+      emailText += `\nYou have a coupon with code: ${coupon.code}`;
+    }
+    sendEmail(req.user.email, emailSubject, emailText);
     return res.status(200).json({
       success: true,
       message: "Order created successfully and used coupon deactivated",

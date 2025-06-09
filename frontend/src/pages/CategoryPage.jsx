@@ -71,7 +71,7 @@ const CategoryPage = () => {
     if (!activeSlider || !sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const sliderWidth = rect.width || 128; // Fallback width
+    const sliderWidth = rect.width || 128; 
     const clickPercentage = Math.max(0, Math.min(1, clickX / sliderWidth));
     const clickValue = minPrice + (maxPrice - minPrice) * clickPercentage;
 

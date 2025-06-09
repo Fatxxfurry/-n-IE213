@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useOrderStore } from "../stores/useOrderStore";
 import { useUserStore } from "../stores/useUserStore";
+import { Link } from "react-router-dom";
 
 const UpdateOrderForm = ({ order, onClose }) => {
   const [updatedOrder, setUpdatedOrder] = useState({ ...order });
@@ -84,7 +85,7 @@ const UpdateOrderForm = ({ order, onClose }) => {
           <div className="space-y-4">
             {updatedOrder.products.map((product, index) => (
               <div key={index} className="bg-gray-700 p-4 rounded-md">
-                <div className="flex items-center space-x-4">
+                <Link to={`/product/${product.product._id}`} className="flex items-center space-x-4">
                   <img
                     src={product.product.image}
                     alt={product.name}
@@ -107,7 +108,7 @@ const UpdateOrderForm = ({ order, onClose }) => {
                       }).format(product.price * product.quantity)}
                     </p>
                   </div>
-                </div>
+                </Link>
               </div>
             ))}
           </div>
