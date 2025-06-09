@@ -1,21 +1,22 @@
 import { ArrowRight, CheckCircle, HandHeart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCartStore } from "../stores/useCartStore";
 import axios from "../lib/axios";
 import Confetti from "react-confetti";
 
+
 const PurchaseSuccessPage = () => {
   const [isProcessing, setIsProcessing] = useState(true);
-  const { clearCart } = useCartStore();
+  const [orderId, setOrderId] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleCheckoutSuccess = async (sessionId) => {
       try {
-        await axios.post("/payments/checkout-success", {
+        const response = await axios.post("/payments/checkout-success", {
           sessionId,
         });
+        setOrderId(response.data.orderId);
       } catch (error) {
         console.log(error);
       } finally {
@@ -68,7 +69,7 @@ const PurchaseSuccessPage = () => {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-400">Order number</span>
               <span className="text-sm font-semibold text-emerald-400">
-                #12345
+                #{orderId}
               </span>
             </div>
             <div className="flex items-center justify-between">

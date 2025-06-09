@@ -125,8 +125,7 @@ export const checkoutSuccess = async (req, res) => {
       address: session.metadata.address,
       status: "processing",
     });
-
-    if (session.total_amount > process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
+    if (session.amount_total > process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
       await createNewCoupon(session.metadata.userId);
     }
 
