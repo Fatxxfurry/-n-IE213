@@ -12,7 +12,12 @@ const generateToken = (userId) => {
   return { accessToken, refreshToken };
 };
 const storeRefreshToken = async (userId, refreshToken) => {
-  await redis.set(`refreshToken:${userId}`, refreshToken, "EX", 7 * 24 * 60 * 60); //7 days
+  await redis.set(
+    `refreshToken:${userId}`,
+    refreshToken,
+    "EX",
+    7 * 24 * 60 * 60
+  ); //7 days
 };
 const setCookies = (res, accessToken, refreshToken) => {
   res.cookie("accessToken", accessToken, {
@@ -22,8 +27,8 @@ const setCookies = (res, accessToken, refreshToken) => {
     maxAge: 15 * 60 * 1000, //15 minutes
   });
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,//xss
-    samesite: "strict",//csrf
+    httpOnly: true, //xss
+    samesite: "strict", //csrf
     secure: process.env.NODE_ENV === "production",
     maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
   });
@@ -48,6 +53,8 @@ export const signup = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phoneNumber: user.phoneNumber,
+        address: [...user.address],
       },
       message: "User create successfully",
     });
@@ -73,6 +80,8 @@ export const login = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          phoneNumber: user.phoneNumber,
+          address: [...user.address],
         },
         message: "Login success",
       });
@@ -81,7 +90,7 @@ export const login = async (req, res) => {
     }
   } catch (error) {
     console.log("Error in login controller", error.message);
-    res.status(500).json({ message: error.message });   
+    res.status(500).json({ message: error.message });
   }
 };
 export const logout = async (req, res) => {
@@ -108,7 +117,9 @@ export const refreshToken = async (req, res) => {
     if (refreshToken !== storedRefreshToken) {
       return res.status(401).send("Unauthenticated");
     }
-    const {accessToken, refreshToken: newRefreshToken} = generateToken(decode.userId);
+    const { accessToken, refreshToken: newRefreshToken } = generateToken(
+      decode.userId
+    );
     await storeRefreshToken(decode.userId, newRefreshToken);
     setCookies(res, accessToken, newRefreshToken);
     res.status(200).send("Refresh token success");
@@ -126,6 +137,8 @@ export const getProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phoneNumber: user.phoneNumber,
+        address: [...user.address],
       },
     });
   } catch (error) {
@@ -133,5 +146,3 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-

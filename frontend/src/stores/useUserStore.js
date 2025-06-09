@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { updateUser } from "../../../backend/controllers/user.controller";
 
 export const useUserStore = create((set, get) => ({
   user: null,
@@ -70,6 +71,14 @@ export const useUserStore = create((set, get) => ({
     } catch (error) {
       set({ user: null, checkingAuth: false });
       throw error;
+    }
+  },
+  updateProfile: async (updatedUser) => {
+    try {
+      const response = await axios.patch(`/user/${updatedUser.id}`, updatedUser);
+      set({ user: response.data.user });
+    } catch (error) {
+      console.log(error);
     }
   },
 }));

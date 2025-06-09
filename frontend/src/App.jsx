@@ -18,6 +18,7 @@ import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 import AllProductPage from "./pages/AllProductPage";
 import Footer from "./components/Footer";
 import ProductDetail from "./pages/ProductDetail";
+import ProfilePage from "./pages/ProfilePage";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -74,6 +75,10 @@ function App() {
           <Route
             path="/purchase/cancel"
             element={user ? <PurchaseCancelPage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/profile"
+            element={user ? <ProfilePage /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>

@@ -11,6 +11,8 @@ import cartRoutes from "./routes/cart.route.js";
 import couponRoutes from "./routes/coupon.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import analyticsRoutes from "./routes/analytics.route.js";
+import orderRoutes from "./routes/order.route.js";
+import userRoutes from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -28,6 +30,8 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(3000, () => {
   console.log("server running on http://localhost:" + PORT);

@@ -1,5 +1,12 @@
-import { ShoppingCart, UserPlus, LogIn, LogOut, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import {
+  ShoppingCart,
+  UserPlus,
+  LogIn,
+  LogOut,
+  Lock,
+  User,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
 import { useTranslation } from "react-i18next";
@@ -8,11 +15,22 @@ const Navbar = () => {
   const { user, logout } = useUserStore();
   const isAdmin = user?.role === "admin";
   const { cart } = useCartStore();
+
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === "en" ? "vi" : "en";
     i18n.changeLanguage(newLang);
+  };
+
+  const handleProfileModalClose = () => {
+    setProfileModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
@@ -44,6 +62,12 @@ const Navbar = () => {
             >
               {t("navbar.home", { defaultValue: "Home" })}
             </Link>
+            <Link
+              to="/all"
+              className="text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out"
+            >
+              {t("navbar.all_products", { defaultValue: "All Products" })}
+            </Link>
             {user && (
               <Link
                 to="/cart"
@@ -63,16 +87,25 @@ const Navbar = () => {
                 )}
               </Link>
             )}
-            <Link
-              to="/all"
-              className="text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out"
-            >
-              {t("navbar.all_products", { defaultValue: "All Products" })}
-            </Link>
+
+            {user && (
+              <Link
+                to="/profile"
+                className="relative group text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out"
+              >
+                <User
+                  className="inline-block mr-1 group-hover:text-emerald-400"
+                  size={20}
+                />
+                <span className="hidden sm:inline">
+                  {t("navbar.profile", { defaultValue: "Profile" })}
+                </span>
+              </Link>
+            )}
             {user ? (
               <button
                 className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-md flex items-center transition duration-300 ease-in-out"
-                onClick={logout}
+                onClick={handleLogout}
               >
                 <LogOut size={18} />
                 <span className="hidden sm:inline ml-2">
@@ -97,6 +130,7 @@ const Navbar = () => {
                 </Link>
               </>
             )}
+
             <button
               onClick={toggleLanguage}
               className="bg-gray-600 hover:bg-gray-500 text-white py-2 px-3 rounded-md transition duration-300 ease-in-out"

@@ -14,12 +14,12 @@ export const createCheckoutSession = async (req, res) => {
       totalAmount += product.price * product.quantity;
       return {
         price_data: {
-          currency: "usd",
+          currency: "vnd",
           product_data: {
             name: product.name,
             images: [product.image],
           },
-          unit_amount: product.price * 100,
+          unit_amount:  product.price 
         },
         quantity: product.quantity,
       };
