@@ -70,6 +70,14 @@ const Navbar = () => {
             </Link>
             {user && (
               <Link
+                to="/history"
+                className="text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out"
+              >
+                {t("navbar.orders", { defaultValue: "Orders" })}
+              </Link>
+            )}
+            {user && (
+              <Link
                 to="/cart"
                 className="relative group text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out"
               >

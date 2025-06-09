@@ -110,3 +110,23 @@ export const getCartProducts = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+export const updateChecked = async (req, res) => {
+  try {
+    const { id: productId } = req.params;
+    const { checked } = req.body;
+    const user = req.user;
+    const existingItem = user.cartItems.find(
+      (item) => item._id.toString() === productId
+    );
+    if (existingItem) {
+      existingItem.checked = checked;
+      await user.save();
+      res.json(user.cartItems);
+    } else {
+      res.status(404).json({ message: "Product not found" });
+    }
+  } catch (error) {
+    console.log("Error in updateChecked controller:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

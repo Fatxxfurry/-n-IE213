@@ -42,7 +42,7 @@ const UpdateProductForm = ({ product, onClose }) => {
 
   return (
     <motion.div
-      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+      className="fixed inset-0 flex items-center justify-center z-50"
       style={{ maxWidth: "100vw", maxHeight: "100vh" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

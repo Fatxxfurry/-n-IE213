@@ -42,7 +42,12 @@ export const useCartStore = create((set, get) => ({
     try {
       const res = await axios.get("/cart");
       const cartData = Array.isArray(res.data) ? res.data : [];
-      set({ cart: cartData });
+      set({
+        cart: cartData.map((item) => ({
+          ...item,
+          checked: item.checked ?? true,
+        })),
+      });
       get().calculateTotals();
     } catch (error) {
       console.error("Error fetching cart:", error.message);

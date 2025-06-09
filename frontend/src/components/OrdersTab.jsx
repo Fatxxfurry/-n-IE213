@@ -1,33 +1,31 @@
 import { motion } from "framer-motion";
 import { Trash, Star } from "lucide-react";
-import { useProductStore } from "../stores/useProductStore";
 import React, { useState } from "react";
-import UpdateProductForm from "./UpdateProductForm";
-
-const ProductsList = () => {
-  const [selectedProduct, setSelectedProduct] = useState(null);
+import { useOrderStore } from "../stores/useOrderStore.js";
+import UpdateOrderForm from "./UpdateOrderForm.jsx";
+const OrdersTab = () => {
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleProductClick = (product) => {
-    if (selectedProduct && selectedProduct._id !== product._id) {
+  const handleOrderClick = (order) => {
+    if (selectedOrder && selectedOrder._id !== order._id) {
       setIsModalOpen(false);
       setTimeout(() => {
-        setSelectedProduct(product);
+        setSelectedOrder(order);
         setIsModalOpen(true);
       }, 100);
     } else {
-      setSelectedProduct(product);
+      setSelectedOrder(order);
       setIsModalOpen(true);
     }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedProduct(null);
+    setSelectedOrder(null);
   };
 
-  const { deleteProduct, toggleFeaturedProduct, products } = useProductStore();
-
+  const { orders, fetchUserOrders } = useOrderStore();
   return (
     <div>
       <motion.div
@@ -43,89 +41,68 @@ const ProductsList = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Product
+                ID
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Price
+                User Name
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Category
+                Total Price
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Featured
+                Status
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Actions
+                Date Order
               </th>
             </tr>
           </thead>
 
           <tbody className="bg-gray-800 divide-y divide-gray-700">
-            {products?.map((product) => (
-              <tr key={product._id} className="hover:bg-gray-700">
+            {orders?.map((order) => (
+              <tr key={order._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div
-                    className="flex items-center"
-                    onClick={() => handleProductClick(product)}
+                    className="text-sm font-medium text-white"
+                    onClick={() => handleOrderClick(order)}
                   >
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={product.image}
-                        alt={product.name}
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-white">
-                        {product.name}
-                      </div>
-                    </div>
+                    {order._id}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-300">{order.user.name}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-300">
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
-                    }).format(product.price.toFixed(0))}
+                    }).format(order.totalAmount)}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-300">{order.status}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-300">
-                    {product.category}
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => toggleFeaturedProduct(product._id)}
-                    className={`p-1 rounded-full ${
-                      product.isFeatured
-                        ? "bg-yellow-400 text-gray-900"
-                        : "bg-gray-600 text-gray-300"
-                    } hover:bg-yellow-500 transition-colors duration-200`}
-                  >
-                    <Star className="h-5 w-5" />
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => deleteProduct(product._id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
                 </td>
               </tr>
             ))}
@@ -133,13 +110,10 @@ const ProductsList = () => {
         </table>
       </motion.div>
       {isModalOpen && (
-        <UpdateProductForm
-          product={selectedProduct}
-          onClose={handleCloseModal}
-        />
+        <UpdateOrderForm order={selectedOrder} onClose={handleCloseModal} />
       )}
     </div>
   );
 };
 
-export default ProductsList;
+export default OrdersTab;

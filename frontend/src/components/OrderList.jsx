@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
 import { Trash, Star } from "lucide-react";
-import { useOrderStore } from "../stores/useOrderStore";
 import React, { useState } from "react";
-import UpdateOrderForm from "./UpdateOrderForm";
-
-const OrderTab = () => {
+import { useOrderStore } from "../stores/useOrderStore.js";
+import UpdateOrderForm from "./UpdateOrderForm.jsx";
+const OrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,10 +25,7 @@ const OrderTab = () => {
     setSelectedOrder(null);
   };
 
-  const { deleteOrder, toggleFulfilledOrder, orders } = useOrderStore();
-
-  console.log("orders", orders);
-
+  const { orders, fetchUserOrders } = useOrderStore();
   return (
     <div>
       <motion.div
@@ -45,19 +41,31 @@ const OrderTab = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Order
+                ID
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Total
+                User Name
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
               >
-                Actions
+                Total Price
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Status
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+              >
+                Date Order
               </th>
             </tr>
           </thead>
@@ -67,47 +75,34 @@ const OrderTab = () => {
               <tr key={order._id} className="hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div
-                    className="flex items-center"
+                    className="text-sm font-medium text-white"
                     onClick={() => handleOrderClick(order)}
                   >
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={order.user.avatar}
-                        alt={order.user.name}
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-white">
-                        {order.user.name}
-                      </div>
-                    </div>
+                    {order._id}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-300">{order.user.name}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-300">
-                    ${order.total.toFixed(2)}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(order.totalAmount)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => toggleFulfilledOrder(order._id)}
-                    className={`p-1 rounded-full ${
-                      order.isFulfilled
-                        ? "bg-green-400 text-gray-900"
-                        : "bg-gray-600 text-gray-300"
-                    } hover:bg-green-500 transition-colors duration-200`}
-                  >
-                    <Star className="h-5 w-5" />
-                  </button>
+                  <div className="text-sm text-gray-300">{order.status}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => deleteOrder(order._id)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-300">
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -121,4 +116,4 @@ const OrderTab = () => {
   );
 };
 
-export default OrderTab;
+export default OrderList;

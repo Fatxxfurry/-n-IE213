@@ -19,6 +19,7 @@ import AllProductPage from "./pages/AllProductPage";
 import Footer from "./components/Footer";
 import ProductDetail from "./pages/ProductDetail";
 import ProfilePage from "./pages/ProfilePage";
+import HistoryOrderPage from "./pages/HistoryOrderPage";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
   const { getCartItems } = useCartStore();
@@ -80,10 +81,14 @@ function App() {
             path="/profile"
             element={user ? <ProfilePage /> : <Navigate to="/login" />}
           />
+          <Route
+            path="/history"
+            element={user ? <HistoryOrderPage /> : <Navigate to="/login" />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
       <Footer />
-      {/* Toast notifications */}
       <Toaster />
     </div>
   );

@@ -1,10 +1,9 @@
 import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
 import { stripe } from "../lib/stripe.js";
-
 export const createCheckoutSession = async (req, res) => {
   try {
-    const { products, couponCode } = req.body;
+    const { products, couponCode, phoneNumber, address } = req.body;
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ message: "Invalid or empty product list" });
     }
@@ -19,14 +18,14 @@ export const createCheckoutSession = async (req, res) => {
             name: product.name,
             images: [product.image],
           },
-          unit_amount:  product.price 
+          unit_amount: product.price,
         },
         quantity: product.quantity,
       };
     });
 
     // Xử lý coupon (nếu có)
-    let discounts = [];
+    const discounts = [];
     if (couponCode) {
       const coupon = await Coupon.findOne({
         code: couponCode,
@@ -49,7 +48,6 @@ export const createCheckoutSession = async (req, res) => {
         );
       }
     }
-
     // Tạo session (luôn luôn tạo)
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -68,14 +66,13 @@ export const createCheckoutSession = async (req, res) => {
             price: product.price,
           }))
         ),
+        phoneNumber,
+        address,
       },
     });
-
-    // Tạo coupon mới cho user nếu đủ điều kiện
     if (totalAmount >= process.env.MINIMUM_PURCHASE_AMOUNT_FOR_COUPON) {
       await createNewCoupon(req.user._id);
     }
-
     return res.status(200).json({
       sessionId: session.id,
       totalAmount,
@@ -113,7 +110,6 @@ export const checkoutSuccess = async (req, res) => {
         { isActive: false }
       );
     }
-
     // Parse products and create order
     const products = JSON.parse(session.metadata.products);
 
@@ -126,10 +122,12 @@ export const checkoutSuccess = async (req, res) => {
       })),
       totalAmount: session.amount_total,
       stripeSessionId: sessionId,
+      phoneNumber: session.metadata.phoneNumber,
+      address: session.metadata.address,
+      status: "processing",
     });
 
     await newOrder.save();
-
     return res.status(200).json({
       success: true,
       message: "Order created successfully and used coupon deactivated",
@@ -155,7 +153,7 @@ async function createStripeCoupon(discountPercentage) {
 }
 async function createNewCoupon(userId) {
   try {
-    const existingCoupon = await Coupon.findOne({ userId: userId });
+    const existingCoupon = await Coupon.findOne({ userId });
     if (existingCoupon) {
       console.log("User already has a coupon. Skipping creation.");
       return;
@@ -164,7 +162,7 @@ async function createNewCoupon(userId) {
       code: "GIFT" + Math.random().toString(36).substring(7).toUpperCase(),
       discountPercentage: 10,
       expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      userId: userId,
+      userId,
     });
     await coupon.save();
     console.log("Coupon created successfully for user:", userId);

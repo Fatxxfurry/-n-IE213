@@ -5,6 +5,8 @@ import { MoveRight } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import axios from "../lib/axios";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { useUserStore } from "../stores/useUserStore";
 
 const stripePromise = loadStripe(
   "pk_test_51R6BGkQqINZd5lUJ91n9wmyBYLP0rkgjZfH8mn7YgZBYtnCoKNdrDJI9UHjRrO6U4aG9FgtepNoCpxLQucmmwchA00OVyvKxgr"
@@ -13,17 +15,23 @@ const stripePromise = loadStripe(
 const OrderSummary = () => {
   const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
   const { t } = useTranslation();
+  const { user } = useUserStore();
 
   const savings = subtotal - total;
   const formattedSubtotal = subtotal;
   const formattedTotal = total;
   const formattedSavings = savings;
 
+  const [address, setAddress] = useState(user?.address[0] || "");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
+
   const handlePayment = async () => {
     const stripe = await stripePromise;
     const res = await axios.post("/payments/create-checkout-session", {
       products: cart,
       couponCode: coupon ? coupon.code : null,
+      address,
+      phoneNumber,
     });
 
     const session = res.data;
@@ -92,6 +100,50 @@ const OrderSummary = () => {
               {formattedTotal} VNĐ
             </dd>
           </dl>
+        </div>
+
+        <div className="space-y-4">
+          <label
+            htmlFor="address"
+            className="block text-sm font-medium text-gray-300"
+          >
+            {t("order_summary.address", { defaultValue: "Address" })}
+          </label>
+          <input
+            type="text"
+            id="address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            list="suggested-addresses"
+            className="block w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white"
+            placeholder="Enter your address"
+            required
+          />
+          <datalist id="suggested-addresses">
+            {user?.address.map((address) => (
+              <option key={address} value={address} />
+            ))}
+          </datalist>
+
+          <label
+            htmlFor="phone-number"
+            className="block text-sm font-medium text-gray-300"
+          >
+            {t("order_summary.phone_number", { defaultValue: "Phone number" })}
+          </label>
+          <input
+            type="tel"
+            id="phone-number"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            list="suggested-phone-numbers"
+            className="block w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white"
+            placeholder="Enter your phone number"
+            required
+          />
+          <datalist id="suggested-phone-numbers">
+            <option value={user?.phoneNumber} />
+          </datalist>
         </div>
 
         <motion.button

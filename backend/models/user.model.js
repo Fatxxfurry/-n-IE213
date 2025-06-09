@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
         },
+        checked: {
+          type: Boolean,
+          default: true,
+        },
       },
     ],
     role: {
